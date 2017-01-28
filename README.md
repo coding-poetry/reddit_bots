@@ -1,5 +1,6 @@
 # Reddit Bots
-#### Templates and some completed bots
+#### Templates and completed bots
+#### Please read Getting Started if you are new to Reddit Bots.
 ---
 
 ## Templates
@@ -17,5 +18,5 @@
 - **Topic Monitor**
   - Sends a PM when a submission is used in a title.
 - **This_That**
-  - Replies with a random phrase to and comment consiting only of the word "this"
+  - Replies with a random phrase to any comment consisting of only the word "this"
   - Will result in bans if used on /r/all.
