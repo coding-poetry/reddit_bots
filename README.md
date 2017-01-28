@@ -4,10 +4,13 @@
 ---
 
 ## Templates
-- Comment Feed
-- Submission Feed
-- Submission and comment Feed
-- Mention Responder
+- Comment
+- Submission
+- Submission and Comment
+- Mention
+- Inbox
+- User
+- Historic Data
 
 ---
 ## Bots
@@ -20,3 +23,8 @@
 - **This_That**
   - Replies with a random phrase to any comment consisting of only the word "this"
   - Will result in bans if used on /r/all.
+- **Image Downloader**
+  - Download image if the link is directly to an image
+- **Youtube Auto-Link**
+  - Monitors a Youtube channel and submits links to newly posted videos
+- 
