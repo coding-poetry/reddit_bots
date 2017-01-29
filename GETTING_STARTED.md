@@ -3,7 +3,7 @@
 ---
 ### 1 - Install Python 3
 ### 2 - Install PRAW
-### 3 - Authorize the bot
-### 4 - Save the code
-### 5 - Modify the code
+### 3 - Save the code
+### 4 - Update bot credentials
+### 5 - Authorize the bot
 ### 6 - Schedule the bot
