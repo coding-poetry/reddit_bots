@@ -1,6 +1,6 @@
 # Reddit Bots
 #### Templates and completed bots
-#### Please read Getting Started if you are new to Reddit Bots.
+#### Please read [Getting Started](https://github.com/harrelchris/reddit_bots/blob/master/GETTING_STARTED.md) if you are new to Reddit Bots.
 ---
 
 ## Templates
