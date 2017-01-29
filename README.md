@@ -28,3 +28,5 @@
   - Monitors a Youtube channel and submits links to newly posted videos
 - **User Stalker**
   - Monitors a users overview and sends a PM when they comment or post a submission
+- **Unformatted Code**
+  - Monitors /r/learnpython for unformatted code and links pastebin/gist.github
