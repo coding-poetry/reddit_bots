@@ -19,12 +19,12 @@
 - **Discussion Monitor**
   - Sends a PM when a keyword is mentioned in a comment
 - **Topic Monitor**
-  - Sends a PM when a submission is used in a title.
+  - Sends a PM when a keyword is used in a submission title
 - **This_That**
   - Replies with a random phrase to any comment consisting of only the word "this"
-  - Will result in bans if used on /r/all.
 - **Image Downloader**
   - Download image if the link is directly to an image
 - **Youtube Auto-Link**
   - Monitors a Youtube channel and submits links to newly posted videos
-- 
+- **User Stalker**
+  - Monitors a users overview and sends a PM when they comment or post a submission
