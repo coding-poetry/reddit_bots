@@ -150,7 +150,7 @@ def main():
     subreddit = reddit.subreddit(selected_sub)
     submission_stream = subreddit.stream.submissions()
     for submission in submission_stream:
-        if submission.created < start:
+        if submission.created_utc < start:
             continue
         handle(submission)
 
