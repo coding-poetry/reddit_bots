@@ -133,7 +133,7 @@ def main():
     subreddit = reddit.subreddit(selected_sub)
     comment_stream = subreddit.stream.comments()
     for comment in comment_stream:
-        if comment.created < start:
+        if comment.created_utc < start:
             continue
         handle(comment)
 
