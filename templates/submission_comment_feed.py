@@ -17,7 +17,7 @@ reddit = praw.Reddit(
 def handle_submission(submission):
     """
     Deliver the desired content however you need.
-    See comment block above for available methods
+    See comment block below for available methods
     and attributes on the submission object
 
     Example:
@@ -150,7 +150,7 @@ def handle_submission(submission):
 def handle_comment(comment):
     """
     Deliver the desired content however you need.
-    See comment block above for available methods
+    See comment block below for available methods
     and attributes on the comment object
 
     Example:
