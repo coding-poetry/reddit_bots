@@ -44,4 +44,4 @@ level = 20
 disabled = False
 mode = 'a'
 
-db_file = 'creation_bot.db'
+db_file = 'my_bot.db'
