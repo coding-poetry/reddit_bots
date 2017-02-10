@@ -1,3 +1,5 @@
+#! /usr/bin/python3.5
+
 from time import sleep
 import prawcore
 import logging
