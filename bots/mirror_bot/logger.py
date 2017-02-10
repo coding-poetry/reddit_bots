@@ -76,7 +76,7 @@ def store_comment(comment):
     _id = comment.id
     _is_root = comment.is_root
     _auth = comment.author.name
-    _time = comment.created_utc
+
     _text = comment.body
     _parent_id = comment.parent().id
     _sub_id = comment.submission.id
@@ -84,7 +84,8 @@ def store_comment(comment):
     while tries < 5:
         try:
             c.execute('''INSERT INTO comments
-                (posted, id, repost_id, is_root, auth, text, parent_id, sub_id) VALUES (?,?,?,?,?,?,?,?)''',
+                (posted, id, repost_id, is_root, auth, text, parent_id, sub_id)
+                VALUES (?,?,?,?,?,?,?,?)''',
                 (False, _id, None, _is_root, _auth, _text, _parent_id, _sub_id))
             conn.commit()
         except sqlite3.OperationalError as error:
@@ -181,5 +182,5 @@ if __name__ == '__main__':
     logger.info('Stop')
     if config.admin_user:
         reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
-                                                   'Your Logger bot has malfunctioned.\n'
+                                                   'Your Poster bot has malfunctioned.\n'
                                                    'Please review the activity log for errors.')
