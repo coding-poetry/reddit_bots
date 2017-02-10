@@ -1,5 +1,3 @@
-#! /usr/bin/python3.5
-
 from time import sleep
 import prawcore
 import logging
@@ -34,14 +32,15 @@ def new_subs():
 def post_sub(submission):
     """Cross post the submission as a selftext or link and return the repost_id"""
     title = submission[5]
-    text = submission[6]
+    text = submission[6] if submission[6] else '(No text)'
+    comment_body = text + author_signature(submission[4])
     link = submission[7]
     destination = reddit.subreddit(config.dest)
-    if text:
-        post = destination.submit(title=title, selftext=text, send_replies=False)
-    else:
+    if link:
         post = destination.submit(title=title, url=link, send_replies=False)
         create_sticky(submission[4], post)
+    else:
+        post = destination.submit(title=title, selftext=comment_body, send_replies=False)
     return post.id
 
 
