@@ -39,6 +39,7 @@ def post_sub(submission):
         post = destination.submit(title=title, selftext=text, send_replies=False)
     else:
         post = destination.submit(title=title, url=link, send_replies=False)
+        create_sticky(submission[4], post)
     return post.id
 
 
@@ -47,6 +48,12 @@ def mark_sub_posted(sub, repost_id):
     c.execute('''UPDATE submissions SET posted=(?), repost_id=(?) WHERE id=(?)''',
               (True, repost_id, sub[1]))
     conn.commit()
+
+
+def create_sticky(author, repost):
+    comment = repost.reply(author_signature(author))
+    comment.mod.distinguish(sticky=True)
+    pass
 
 
 # --- Handle root comments
@@ -67,7 +74,8 @@ def parent_submission(comment):
 
 
 def post_root_comment(parent, root_comment):
-    repost = reddit.submission(parent).reply(root_comment[5])
+    comment_body = root_comment[5] + author_signature(root_comment[4])
+    repost = reddit.submission(parent).reply(comment_body)
     return repost.id
 
 
@@ -97,7 +105,8 @@ def parent_comment(child_comment):
 
 
 def post_child_comment(parent, child_comment):
-    repost = reddit.comment(parent).reply(child_comment[5])
+    comment_body = child_comment[5] + author_signature(child_comment[4])
+    repost = reddit.submission(parent).reply(comment_body)
     return repost.id
 
 
@@ -109,6 +118,12 @@ def mark_child_posted(child_comment, repost_id):
 
 
 # --- Main
+def author_signature(author):
+    """Anonymize the the author's name"""
+    anon = author[:2] + ('*' * (len(author) - 4)) + author[-2:]
+    return '\n\nWritten by: {}'.format(anon)
+
+
 def main():
     """Cross post all new submissions, then root comments, then child comments"""
     for sub in new_subs():
