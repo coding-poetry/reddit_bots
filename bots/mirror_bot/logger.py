@@ -1,298 +1,105 @@
-from time import sleep, strftime, time
-import configparser
+from collections import deque
+from time import sleep
+import threading
 import prawcore
 import logging
-import praw
-from collections import deque
-import threading
 import sqlite3
+import config
+import praw
 
-start = time()
-config = configparser.ConfigParser()
-config.read('bot.conf', encoding='utf-8')
-AUTH = config['AUTHENTICATION']
-LOG = config['LOGGING']
-REDDIT = config['REDDIT']
-source = REDDIT['src']
-DB = config['DATABASE']
-database = DB['db_file']
-logging.basicConfig(filename=LOG['log_file'], level=logging.WARNING, format='%(asctime)s %(message)s')
-logger = logging.getLogger(__name__)
-reddit = praw.Reddit(
-    password=AUTH['password'],
-    username=AUTH['username'],
-    client_id=AUTH['client_id'],
-    user_agent=AUTH['user_agent'],
-    client_secret=AUTH['client_secret'])
-conn = sqlite3.connect(database)
+logger = logging.getLogger('Logger')
+reddit = praw.Reddit(**config.logger)
+restarts = 0
+loiter = config.loiter
+max_restarts = config.max_restarts
+source = config.src
+logging.basicConfig(filename=config.log_file,
+                    filemode=config.mode,
+                    level=config.level,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logger.disabled = config.disabled
+conn = sqlite3.connect(config.db_file)
 c = conn.cursor()
 
-logger.disabled = False
-max_restarts = 1
-wait = 1
+
+def build_db():
+    c.execute('''CREATE TABLE IF NOT EXISTS submissions(
+    posted, id, repost_id, self, auth, title, text, link)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS comments(
+    posted, id, repost_id, is_root, auth, text, parent_id, sub_id)''')
+    conn.commit()
 
 
-def handle_submission(submission):
-    # Load into submissions DB table
-    """
-    Deliver the desired content however you need.
-    See comment block above for available methods
-    and attributes on the submission object
+def submission_exists(submission):
+    """Query the existence of a submission"""
+    c.execute('''SELECT id FROM submissions WHERE id=(?) LIMIT 1''', (submission.id,))
+    if c.fetchone():
+        return True
+    return False
 
-    Example:
 
-    print(submission.author)
+def comment_exists(comment):
+    """Query the existence of a comment"""
+    c.execute('''SELECT id FROM comments WHERE id=(?) LIMIT 1''', (comment.id,))
+    if c.fetchone():
+        return True
+    return False
 
-    :param submission: PRAW submission object
-    :return: None
-    """
-    """
-    from pprint import pprint
-    pprint(dir(submission))
 
-    ['STR_FIELD',
-     '__class__',
-     '__delattr__',
-     '__dict__',
-     '__dir__',
-     '__doc__',
-     '__eq__',
-     '__format__',
-     '__ge__',
-     '__getattr__',
-     '__getattribute__',
-     '__gt__',
-     '__hash__',
-     '__init__',
-     '__le__',
-     '__lt__',
-     '__module__',
-     '__ne__',
-     '__new__',
-     '__reduce__',
-     '__reduce_ex__',
-     '__repr__',
-     '__setattr__',
-     '__sizeof__',
-     '__str__',
-     '__subclasshook__',
-     '__weakref__',
-     '_comments_by_id',
-     '_fetch',
-     '_fetched',
-     '_flair',
-     '_info_path',
-     '_mod',
-     '_reddit',
-     '_reset_attributes',
-     '_safely_add_arguments',
-     '_vote',
-     'approved_by',
-     'archived',
-     'author',
-     'author_flair_css_class',
-     'author_flair_text',
-     'banned_by',
-     'clear_vote',
-     'clicked',
-     'comment_limit',
-     'comment_sort',
-     'comments',
-     'contest_mode',
-     'created',
-     'created_utc',
-     'delete',
-     'distinguished',
-     'domain',
-     'downs',
-     'downvote',
-     'duplicates',
-     'edit',
-     'edited',
-     'flair',
-     'fullname',
-     'gild',
-     'gilded',
-     'hidden',
-     'hide',
-     'hide_score',
-     'id',
-     'id_from_url',
-     'is_self',
-     'likes',
-     'link_flair_css_class',
-     'link_flair_text',
-     'locked',
-     'media',
-     'media_embed',
-     'mod',
-     'mod_reports',
-     'name',
-     'num_comments',
-     'num_reports',
-     'over_18',
-     'parse',
-     'permalink',
-     'post_hint',
-     'preview',
-     'quarantine',
-     'removal_reason',
-     'reply',
-     'report',
-     'report_reasons',
-     'save',
-     'saved',
-     'score',
-     'secure_media',
-     'secure_media_embed',
-     'selftext',
-     'selftext_html',
-     'shortlink',
-     'spoiler',
-     'stickied',
-     'subreddit',
-     'subreddit_id',
-     'suggested_sort',
-     'thumbnail',
-     'title',
-     'unhide',
-     'unsave',
-     'ups',
-     'upvote',
-     'url',
-     'user_reports',
-     'visited']
-    """
-    _author = submission.author.name
+def store_submission(submission):
+    """Insert submission info into the database"""
     _id = submission.id
-    _time = submission.created_utc
+    _self = True if submission.is_self == 1 else False
+    _auth = submission.author.name
     _title = submission.title
-    _url = submission.url
-    _text = submission.selftext
-    print('Submission', submission.author.name)
+    _link = submission.url if not _self else None
+    _text = submission.selftext if submission.selftext else None
+    tries = 0
+    while tries < 5:
+        try:
+            c.execute('''INSERT INTO submissions
+                (posted, id, repost_id, self, auth, title, text, link) VALUES (?,?,?,?,?,?,?,?)''',
+                (False, _id, None, _self, _auth, _title, _text, _link))
+            conn.commit()
+        except sqlite3.OperationalError as error:
+            logger.exception(error)
+            sleep(2)
+            continue
+        else:
+            break
+    else:
+        logger.log(50, 'DATABASE ERROR. UPDATE FAILED')
 
 
-def handle_comment(comment):
-    # Load into comments DB table
-    """
-    Deliver the desired content however you need.
-    See comment block above for available methods
-    and attributes on the comment object
-
-    Example:
-
-    print(comment.author)
-
-    :param comment: PRAW comment object
-    :return: None
-    """
-    """
-    from pprint import pprint
-    pprint(dir(comment))
-
-    ['STR_FIELD',
-     '__class__',
-     '__delattr__',
-     '__dict__',
-     '__dir__',
-     '__doc__',
-     '__eq__',
-     '__format__',
-     '__ge__',
-     '__getattr__',
-     '__getattribute__',
-     '__gt__',
-     '__hash__',
-     '__init__',
-     '__le__',
-     '__lt__',
-     '__module__',
-     '__ne__',
-     '__new__',
-     '__reduce__',
-     '__reduce_ex__',
-     '__repr__',
-     '__setattr__',
-     '__sizeof__',
-     '__str__',
-     '__subclasshook__',
-     '__weakref__',
-     '_fetch',
-     '_fetched',
-     '_mod',
-     '_reddit',
-     '_replies',
-     '_reset_attributes',
-     '_safely_add_arguments',
-     '_submission',
-     '_vote',
-     'approved_by',
-     'archived',
-     'author',
-     'author_flair_css_class',
-     'author_flair_text',
-     'banned_by',
-     'block',
-     'body',
-     'body_html',
-     'clear_vote',
-     'controversiality',
-     'created',
-     'created_utc',
-     'delete',
-     'distinguished',
-     'downs',
-     'downvote',
-     'edit',
-     'edited',
-     'fullname',
-     'gild',
-     'gilded',
-     'id',
-     'is_root',
-     'likes',
-     'link_author',
-     'link_id',
-     'link_title',
-     'link_url',
-     'mark_read',
-     'mark_unread',
-     'mod',
-     'mod_reports',
-     'name',
-     'num_reports',
-     'over_18',
-     'parent',
-     'parent_id',
-     'parse',
-     'permalink',
-     'quarantine',
-     'refresh',
-     'removal_reason',
-     'replies',
-     'reply',
-     'report',
-     'report_reasons',
-     'save',
-     'saved',
-     'score',
-     'score_hidden',
-     'stickied',
-     'submission',
-     'subreddit',
-     'subreddit_id',
-     'unsave',
-     'ups',
-     'upvote',
-     'user_reports']
-    """
-    print('Comment', comment.author.name)
+def store_comment(comment):
+    """Insert comment data into the database"""
+    _id = comment.id
+    _is_root = comment.is_root
+    _auth = comment.author.name
+    _time = comment.created_utc
+    _text = comment.body
+    _parent_id = comment.parent().id
+    _sub_id = comment.submission.id
+    tries = 0
+    while tries < 5:
+        try:
+            c.execute('''INSERT INTO comments
+                (posted, id, repost_id, is_root, auth, text, parent_id, sub_id) VALUES (?,?,?,?,?,?,?,?)''',
+                (False, _id, None, _is_root, _auth, _text, _parent_id, _sub_id))
+            conn.commit()
+        except sqlite3.OperationalError as error:
+            logger.exception(error)
+            sleep(2)
+            continue
+        else:
+            break
+    else:
+        logger.log(50, 'DATABASE ERROR. UPDATE FAILED')
 
 
 def _feed_subs_to_queue(monitored_sub, queue):
     """Stream all submissions and put them into the queue.
-    Submissions are stored in a tuple with a 0.
-    Error logging should be established as needed."""
+    Submissions are stored in a tuple with a 0."""
 
     subreddit = reddit.subreddit(monitored_sub)
     while True:
@@ -306,8 +113,7 @@ def _feed_subs_to_queue(monitored_sub, queue):
 
 def _feed_comms_to_queue(monitored_sub, queue):
     """Stream all comments and put them into the queue.
-    Comments are stored in a tuple with a 1.
-    Error logging should be established as needed."""
+    Comments are stored in a tuple with a 1."""
 
     subreddit = reddit.subreddit(monitored_sub)
     while True:
@@ -333,19 +139,22 @@ def sub_com_stream(queue):
 def main():
     """Create a queue to use as a funnel, start the threads and dispatch as needed"""
     q = deque()
-    s_thread = threading.Thread(target=_feed_subs_to_queue, args=(source, q))
-    c_thread = threading.Thread(target=_feed_comms_to_queue, args=(source, q))
+    s_thread = threading.Thread(target=_feed_subs_to_queue, args=(source, q), daemon=True)
+    c_thread = threading.Thread(target=_feed_comms_to_queue, args=(source, q), daemon=True)
     s_thread.start()
     c_thread.start()
     for entry in sub_com_stream(q):
-        if entry[1] == 0:
-            handle_submission(entry[0])
+        if entry[1] == 0 and not submission_exists(entry[0]):
+            store_submission(entry[0])
+        elif entry[1] == 1 and not comment_exists(entry[0]):
+            store_comment(entry[0])
         else:
-            handle_comment(entry[0])
+            continue
 
 
 if __name__ == '__main__':
-    restarts = 0
+    logger.info('Start')
+    build_db()
     while restarts < max_restarts:
         try:
             main()
@@ -355,18 +164,22 @@ if __name__ == '__main__':
         except prawcore.exceptions.RequestException as e:
             logger.exception(e)
             restarts += 1
-            sleep(wait)
+            sleep(loiter)
             continue
         except prawcore.exceptions.ResponseException as e:
             logger.exception(e)
             restarts += 1
-            sleep(wait)
+            sleep(loiter)
             continue
         except Exception as e:
             logger.exception(e)
             restarts += 1
-            sleep(wait)
+            sleep(loiter)
             continue
-        else:
-            logger.error('Max restarts exceeded')
-    logger.error('Stop')
+    else:
+        logger.info('Max restarts exceeded')
+    logger.info('Stop')
+    if config.admin_user:
+        reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
+                                                   'Your Poster bot has malfunctioned.\n'
+                                                   'Please review the activity log for errors.')
