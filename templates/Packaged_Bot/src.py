@@ -1,61 +1,60 @@
-from time import sleep, strftime, time
-import configparser
+from collections import deque
+from time import sleep
+import threading
 import prawcore
 import logging
+import sqlite3
+import config
 import praw
 
-start = time()
-config = configparser.ConfigParser()
-config.read('bot.conf', encoding='utf-8')
-AUTH = config['AUTHENTICATION']
-LOG = config['LOGGING']
-logging.basicConfig(filename=LOG['logfile'], level=logging.DEBUG, format='%(asctime)s %(message)s')
-logger = logging.getLogger(__name__)
-reddit = praw.Reddit(
-    password=AUTH['password'],
-    username=AUTH['username'],
-    client_id=AUTH['client_id'],
-    user_agent=AUTH['user_agent'],
-    client_secret=AUTH['client_secret'])
-
-logger.disabled = False
-notification = False
-max_restarts = 5
-wait = 60
+logger = logging.getLogger('Logger')
+reddit = praw.Reddit(**config.logger)
+restarts = 0
+loiter = config.loiter
+max_restarts = config.max_restarts
+source = config.src
+logging.basicConfig(filename=config.log_file,
+                    filemode=config.mode,
+                    level=config.level,
+                    format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logger.disabled = config.disabled
+conn = sqlite3.connect(config.db_file)
+c = conn.cursor()
 
 
-def run():
+def main():
     # Stream comments or submissions
     pass
 
 
 if __name__ == '__main__':
     logger.info('Start')
-    restarts = 0
+    build_db()
     while restarts < max_restarts:
         try:
-            run()
+            main()
         except prawcore.exceptions.OAuthException as e:
             logger.exception(e)
             break
         except prawcore.exceptions.RequestException as e:
             logger.exception(e)
             restarts += 1
-            sleep(wait)
+            sleep(loiter)
             continue
         except prawcore.exceptions.ResponseException as e:
             logger.exception(e)
             restarts += 1
-            sleep(wait)
+            sleep(loiter)
             continue
         except Exception as e:
             logger.exception(e)
             restarts += 1
-            sleep(wait)
+            sleep(loiter)
             continue
-        else:
-            logger.info('Max restarts exceeded')
-
+    else:
+        logger.info('Max restarts exceeded')
     logger.info('Stop')
-    if notification:
-        reddit.redditor(AUTH['bot_owner']).message('BOT STOPPED', strftime("%Y-%m-%d %H:%M:%S"))
+    if config.admin_user:
+        reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
+                                                   'Your Poster bot has malfunctioned.\n'
+                                                   'Please review the activity log for errors.')
