@@ -36,8 +36,8 @@ poster = {
 loiter = 60
 max_restarts = 5
 
-src = 'python'
-dest = 'pylet'
+src = ''
+dest = ''
 
 log_file = 'activity_log.txt'
 level = 20
