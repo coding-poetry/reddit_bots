@@ -181,5 +181,5 @@ if __name__ == '__main__':
     logger.info('Stop')
     if config.admin_user:
         reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
-                                                   'Your Poster bot has malfunctioned.\n'
+                                                   'Your Logger bot has malfunctioned.\n'
                                                    'Please review the activity log for errors.')
