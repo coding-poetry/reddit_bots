@@ -7,8 +7,8 @@ import sqlite3
 import config
 import praw
 
-logger = logging.getLogger('Logger')
-reddit = praw.Reddit(**config.logger)
+logger = logging.getLogger(__name__)
+reddit = praw.Reddit(**config.auth)
 restarts = 0
 loiter = config.loiter
 max_restarts = config.max_restarts
