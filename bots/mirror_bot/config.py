@@ -31,13 +31,19 @@ poster = {
     'user_agent': ''
 }
 
+# src is the source subreddit, where you want to get the posts from
+# do not put /r/
+# ex: pics
+src = ''
+# dest is where you want to post the mirrored posts
+# do not put /r/
+# ex: mirrored_pics
+dest = ''
+
 
 # --- Do not modify these values --- #
 loiter = 60
 max_restarts = 5
-
-src = ''
-dest = ''
 
 log_file = 'activity_log.txt'
 level = 20
