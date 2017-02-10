@@ -23,6 +23,7 @@ c = conn.cursor()
 
 
 def build_db():
+    """Create the tables"""
     c.execute('''CREATE TABLE IF NOT EXISTS submissions(
     posted, id, repost_id, self, auth, title, text, link)''')
     c.execute('''CREATE TABLE IF NOT EXISTS comments(
@@ -73,10 +74,11 @@ def store_submission(submission):
 
 def store_comment(comment):
     """Insert comment data into the database"""
+    if comment.edited:
+        return
     _id = comment.id
     _is_root = comment.is_root
     _auth = comment.author.name
-
     _text = comment.body
     _parent_id = comment.parent().id
     _sub_id = comment.submission.id
