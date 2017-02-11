@@ -94,3 +94,4 @@ config.py
 # Operation
 *.db
 activity_log.txt
+.idea/
