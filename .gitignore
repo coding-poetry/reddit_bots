@@ -87,3 +87,10 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Configuration
+config.py
+
+# Operation
+*.db
+activity_log.txt
