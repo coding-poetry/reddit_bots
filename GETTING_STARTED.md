@@ -43,6 +43,8 @@
   - Windows use [Task Scheduler](https://technet.microsoft.com/en-us/library/cc748993(v=ws.11).aspx)
 
 ---
+#### Please see [this reddit post](https://www.reddit.com/r/RequestABot/comments/3d3iss/a_comprehensive_guide_to_running_your_bot_that/) for more detailed instructions if you are having difficulty.
+---
 
 ## Resources
 
