@@ -17,15 +17,11 @@ ___
 
 
 def main():
-    """Check the inbox for mentions once every 30 seconds.
-    Reply to all mentions with the response.
-    Avoids duplicated responses by marking them as read"""
-
-    while True:
-        for mention in reddit.inbox.mentions():
-            if mention.new:
-                mention.reply(response)
-                mention.mark_read()
+    for mention in reddit.inbox.mentions():
+        if mention.new:
+            mention.reply(response)
+            mention.mark_read()
 
 if __name__ == '__main__':
     main()
+
