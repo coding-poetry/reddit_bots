@@ -8,7 +8,6 @@ import praw
 logger = logging.getLogger('Poster')
 reddit = praw.Reddit(**config.poster)
 
-restarts = 0
 loiter = config.loiter
 max_restarts = config.max_restarts
 
@@ -23,14 +22,15 @@ c = conn.cursor()
 
 # --- Post submissions
 def new_subs():
-    """Get all new submissions and post them"""
+    """Generator of submissions from the database that have not yet been posted"""
     c.execute('''SELECT * FROM submissions WHERE posted=0''')
     for submission in c.fetchall():
         yield submission
 
 
 def post_sub(submission):
-    """Cross post the submission as a selftext or link and return the repost_id"""
+    """Cross post the submission as a selftext or link and return the repost_id.
+    Create a sticky comment with the author if the submission is a link."""
     title = submission[5]
     text = submission[6] if submission[6] else '(No text)'
     comment_body = text + author_signature(submission[4])
@@ -45,27 +45,28 @@ def post_sub(submission):
 
 
 def mark_sub_posted(sub, repost_id):
-    """Update posted and repost_id"""
+    """Mark the submission as posted in the database and update the row with the repost_id"""
     c.execute('''UPDATE submissions SET posted=(?), repost_id=(?) WHERE id=(?)''',
               (True, repost_id, sub[1]))
     conn.commit()
 
 
 def create_sticky(author, repost):
+    """Make a sticky comment with the authors name. Used for link submissions only"""
     comment = repost.reply(author_signature(author))
     comment.mod.distinguish(sticky=True)
-    pass
 
 
 # --- Handle root comments
 def new_root_comments():
-    """Get all new root comments and yield them"""
+    """Generator of root level comments from the database that have not yet been posted"""
     c.execute('''SELECT * FROM comments WHERE is_root=1 AND posted=0''')
     for comment in c.fetchall():
         yield comment
 
 
 def parent_submission(comment):
+    """Verify that the parent submission has been posted already and return the repost_id if so"""
     sub_id = comment[7]
     c.execute('''SELECT repost_id FROM submissions WHERE id=(?)''', (sub_id,))
     entry = c.fetchone()
@@ -75,13 +76,15 @@ def parent_submission(comment):
 
 
 def post_root_comment(parent, root_comment):
+    """Build the comment body from the original text and the authors name and post the comment
+    Return the post_id to be used to update the database"""
     comment_body = root_comment[5] + author_signature(root_comment[4])
     repost = reddit.submission(parent).reply(comment_body)
     return repost.id
 
 
 def mark_root_posted(root_comment, repost_id):
-    """Update as posted and insert repost_id"""
+    """Mark the comment as posted in the database and update the row with the repost_id"""
     c.execute('''UPDATE comments SET posted=(?), repost_id=(?) WHERE id=(?)''',
               (True, repost_id, root_comment[1]))
     conn.commit()
@@ -89,14 +92,14 @@ def mark_root_posted(root_comment, repost_id):
 
 # --- Handle child comments
 def new_child_comments():
-    """Get all new child comments and yield them"""
+    """Generator of child level comments from the database that have not yet been posted"""
     c.execute('''SELECT * FROM comments WHERE is_root=0 AND posted=0''')
     for comment in c.fetchall():
         yield comment
 
 
 def parent_comment(child_comment):
-    """Return the parent comment origi"""
+    """Verify that the parent comment has been posted already and return the repost_id if so"""
     parent_comm = child_comment[6]
     c.execute('''SELECT repost_id FROM comments WHERE id=(?)''', (parent_comm,))
     entry = c.fetchone()
@@ -106,13 +109,15 @@ def parent_comment(child_comment):
 
 
 def post_child_comment(parent, child_comment):
+    """Build the comment body from the original text and the authors name and post the comment
+    Return the post_id to be used to update the database"""
     comment_body = child_comment[5] + author_signature(child_comment[4])
     repost = reddit.submission(parent).reply(comment_body)
     return repost.id
 
 
 def mark_child_posted(child_comment, repost_id):
-    """Update as posted and insert repost_id"""
+    """Mark the comment as posted in the database and update the row with the repost_id"""
     c.execute('''UPDATE comments SET posted=(?), repost_id=(?) WHERE id=(?)''',
               (True, repost_id, child_comment[1]))
     conn.commit()
@@ -125,7 +130,7 @@ def author_signature(author):
     return '\n\nWritten by: {}'.format(anon)
 
 
-def main():
+def run():
     """Cross post all new submissions, then root comments, then child comments"""
     for sub in new_subs():
         repost_id = post_sub(sub)
@@ -144,14 +149,17 @@ def main():
             mark_child_posted(child_comment, repost_id)
 
 
-if __name__ == '__main__':
+def main():
+    """Create a log entry that the bot has started, then execute the script once per the loiter time"""
     logger.info('Start')
+    restarts = 0
     while restarts < max_restarts:
         try:
-            main()
+            run()
             sleep(loiter)
         except prawcore.exceptions.OAuthException as e:
             logger.exception(e)
+            logger.critical('Authentication failed. Shutting down.')
             break
         except prawcore.exceptions.RequestException as e:
             logger.exception(e)
@@ -168,10 +176,15 @@ if __name__ == '__main__':
             restarts += 1
             sleep(loiter)
             continue
-    else:
-        logger.info('Max restarts exceeded')
+        else:
+            continue
+    else:  # Only entered if the while condition becomes False
+        logger.error('Max restarts exceeded')
     logger.info('Stop')
     if config.admin_user:
         reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
                                                    'Your Poster bot has malfunctioned.\n'
                                                    'Please review the activity log for errors.')
+
+if __name__ == '__main__':
+    main()

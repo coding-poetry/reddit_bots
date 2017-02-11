@@ -1,5 +1,3 @@
-#! /usr/bin/python3.5
-
 from collections import deque
 from time import sleep
 import threading
@@ -8,10 +6,10 @@ import logging
 import sqlite3
 import config
 import praw
+import sys
 
 logger = logging.getLogger('Logger')
 reddit = praw.Reddit(**config.logger)
-restarts = 0
 loiter = config.loiter
 max_restarts = config.max_restarts
 source = config.src
@@ -25,7 +23,7 @@ c = conn.cursor()
 
 
 def build_db():
-    """Create the tables"""
+    """Create the tables for submissions and comments"""
     c.execute('''CREATE TABLE IF NOT EXISTS submissions(
     posted, id, repost_id, self, auth, title, text, link)''')
     c.execute('''CREATE TABLE IF NOT EXISTS comments(
@@ -60,9 +58,9 @@ def store_submission(submission):
     tries = 0
     while tries < 5:
         try:
-            c.execute('''INSERT INTO submissions
-                (posted, id, repost_id, self, auth, title, text, link) VALUES (?,?,?,?,?,?,?,?)''',
-                (False, _id, None, _self, _auth, _title, _text, _link))
+            c.execute('''
+            INSERT INTO submissions(posted, id, repost_id, self, auth, title, text, link)
+            VALUES (?,?,?,?,?,?,?,?)''', (False, _id, None, _self, _auth, _title, _text, _link))
             conn.commit()
         except sqlite3.OperationalError as error:
             logger.exception(error)
@@ -87,10 +85,9 @@ def store_comment(comment):
     tries = 0
     while tries < 5:
         try:
-            c.execute('''INSERT INTO comments
-                (posted, id, repost_id, is_root, auth, text, parent_id, sub_id)
-                VALUES (?,?,?,?,?,?,?,?)''',
-                (False, _id, None, _is_root, _auth, _text, _parent_id, _sub_id))
+            c.execute('''
+            INSERT INTO comments (posted, id, repost_id, is_root, auth, text, parent_id, sub_id)
+            VALUES (?,?,?,?,?,?,?,?)''', (False, _id, None, _is_root, _auth, _text, _parent_id, _sub_id))
             conn.commit()
         except sqlite3.OperationalError as error:
             logger.exception(error)
@@ -107,13 +104,13 @@ def _feed_subs_to_queue(monitored_sub, queue):
     Submissions are stored in a tuple with a 0."""
 
     subreddit = reddit.subreddit(monitored_sub)
-    while True:
-        try:
-            for sub in subreddit.stream.submissions():
-                queue.append((sub, 0))
-        except Exception as error:
-            logger.exception(error)
-            continue
+    try:
+        for sub in subreddit.stream.submissions():
+            queue.append((sub, 0))
+    except Exception as error:
+        logger.exception(error)
+        logger.critical('Submission stream thread has terminated. Shutting down.')
+        sys.exit()
 
 
 def _feed_comms_to_queue(monitored_sub, queue):
@@ -121,13 +118,13 @@ def _feed_comms_to_queue(monitored_sub, queue):
     Comments are stored in a tuple with a 1."""
 
     subreddit = reddit.subreddit(monitored_sub)
-    while True:
-        try:
-            for com in subreddit.stream.comments():
-                queue.append((com, 1))
-        except Exception as error:
-            logger.exception(error)
-            continue
+    try:
+        for com in subreddit.stream.comments():
+            queue.append((com, 1))
+    except Exception as error:
+        logger.exception(error)
+        logger.critical('Comment stream thread has terminated. Shutting down.')
+        sys.exit()
 
 
 def sub_com_stream(queue):
@@ -141,7 +138,7 @@ def sub_com_stream(queue):
             yield entry
 
 
-def main():
+def run():
     """Create a queue to use as a funnel, start the threads and dispatch as needed"""
     q = deque()
     s_thread = threading.Thread(target=_feed_subs_to_queue, args=(source, q), daemon=True)
@@ -157,14 +154,17 @@ def main():
             continue
 
 
-if __name__ == '__main__':
+def main():
+    """Create a log entry, build the database tables and start the streaming threads."""
     logger.info('Start')
     build_db()
+    restarts = 0
     while restarts < max_restarts:
         try:
-            main()
+            run()
         except prawcore.exceptions.OAuthException as e:
             logger.exception(e)
+            logger.critical('Authentication failed. Shutting down.')
             break
         except prawcore.exceptions.RequestException as e:
             logger.exception(e)
@@ -182,9 +182,12 @@ if __name__ == '__main__':
             sleep(loiter)
             continue
     else:
-        logger.info('Max restarts exceeded')
+        logger.error('Max restarts exceeded')
     logger.info('Stop')
     if config.admin_user:
         reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
                                                    'Your Poster bot has malfunctioned.\n'
                                                    'Please review the activity log for errors.')
+
+if __name__ == '__main__':
+    main()
