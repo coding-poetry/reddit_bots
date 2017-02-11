@@ -1,9 +1,15 @@
-Still a work in progress
-
 # Reddit Bots
-#### Templates and completed bots
-#### Please read [Getting Started](https://github.com/harrelchris/reddit_bots/blob/master/GETTING_STARTED.md) if you are new to Reddit Bots.
+
+#### Templates and completed bots for examples and ideas.
+
+#### Please read [Getting Started](https://github.com/harrelchris/reddit_bots/blob/master/GETTING_STARTED.md) if you are new to making or running Reddit bots.
+
+[![Python](https://img.shields.io/badge/Python-3+-blue.svg?style=plastic)](https://www.python.org/downloads/)
+[![Praw](https://img.shields.io/badge/Praw-4-blue.svg?style=plastic)](https://github.com/praw-dev/praw)
+[![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg?style=plastic)](https://www.paypal.me/chrisharrel)
+
 ---
+
 
 ## Templates
 - [Comment Feed](https://github.com/harrelchris/reddit_bots/blob/master/templates/comment_feed.py)
