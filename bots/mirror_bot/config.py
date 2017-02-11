@@ -10,11 +10,19 @@ poster = the user that will create crossposts but cannot see the private sub
 admin_user = ''
 
 logger = {
-
+    'username': 'string',
+    'password': 'string',
+    'client_id': 'string',
+    'client_secret': 'string',
+    'user_agent': 'string'
 }
 
 poster = {
-
+    'username': 'string',
+    'password': 'string',
+    'client_id': 'string',
+    'client_secret': 'string',
+    'user_agent': 'string'
 }
 
 
