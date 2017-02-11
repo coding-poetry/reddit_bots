@@ -1,4 +1,3 @@
-from time import sleep
 import praw
 
 reddit = praw.Reddit(
@@ -27,7 +26,6 @@ def main():
             if mention.new:
                 mention.reply(response)
                 mention.mark_read()
-        sleep(180)
 
 if __name__ == '__main__':
     main()
