@@ -46,10 +46,10 @@
 
 ## Resources
 
-[Reddit API](https://github.com/reddit/reddit/wiki/API)
-Praw [Documentation](https://praw.readthedocs.io/en/latest/index.html)
-Praw [Source](https://github.com/praw-dev/praw)
-Python [Documentation](https://docs.python.org/3/)
-[/r/RequestABot](https://www.reddit.com/r/RequestABot/)
-[/r/learnpython](https://www.reddit.com/r/learnpython/)
-[Freenode IRC](http://webchat.freenode.net/?channels=%23%23learnpython)
+  - [Reddit API](https://github.com/reddit/reddit/wiki/API)
+  - Praw [Documentation](https://praw.readthedocs.io/en/latest/index.html)
+  - Praw [Source](https://github.com/praw-dev/praw)
+  - Python [Documentation](https://docs.python.org/3/)
+  - [/r/RequestABot](https://www.reddit.com/r/RequestABot/)
+  - [/r/learnpython](https://www.reddit.com/r/learnpython/)
+  - [Freenode IRC](http://webchat.freenode.net/?channels=%23%23learnpython)
