@@ -1,6 +1,4 @@
-from collections import deque
 from time import sleep
-import threading
 import prawcore
 import logging
 import sqlite3
@@ -9,7 +7,7 @@ import praw
 
 logger = logging.getLogger(__name__)
 reddit = praw.Reddit(**config.auth)
-restarts = 0
+
 loiter = config.loiter
 max_restarts = config.max_restarts
 source = config.src
@@ -22,17 +20,16 @@ conn = sqlite3.connect(config.db_file)
 c = conn.cursor()
 
 
-def main():
-    # Stream comments or submissions
+def run():
     pass
 
 
-if __name__ == '__main__':
+def main():
     logger.info('Start')
-    build_db()
+    restarts = 0
     while restarts < max_restarts:
         try:
-            main()
+            run()
         except prawcore.exceptions.OAuthException as e:
             logger.exception(e)
             break
@@ -58,3 +55,6 @@ if __name__ == '__main__':
         reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
                                                    'Your Poster bot has malfunctioned.\n'
                                                    'Please review the activity log for errors.')
+
+if __name__ == '__main__':
+    main()
