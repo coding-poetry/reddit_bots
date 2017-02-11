@@ -4,20 +4,24 @@ import logging
 import sqlite3
 import config
 import praw
+import sys
 
 logger = logging.getLogger('Poster')
-reddit = praw.Reddit(**config.poster)
-
-loiter = config.loiter
-max_restarts = config.max_restarts
-
 logging.basicConfig(filename=config.log_file,
                     filemode=config.mode,
                     level=config.level,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 logger.disabled = config.disabled
+try:
+    reddit = praw.Reddit(**config.poster)
+except prawcore.exceptions.OAuthException as e:
+    logger.exception(e)
+    logger.critical('Authentication failed.')
+    sys.exit()
 conn = sqlite3.connect(config.db_file)
 c = conn.cursor()
+loiter = config.loiter
+max_restarts = config.max_restarts
 
 
 # --- Post submissions
@@ -181,10 +185,7 @@ def main():
     else:  # Only entered if the while condition becomes False
         logger.error('Max restarts exceeded')
     logger.info('Stop')
-    if config.admin_user:
-        reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
-                                                   'Your Poster bot has malfunctioned.\n'
-                                                   'Please review the activity log for errors.')
+
 
 if __name__ == '__main__':
     main()

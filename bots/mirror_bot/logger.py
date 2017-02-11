@@ -9,17 +9,22 @@ import praw
 import sys
 
 logger = logging.getLogger('Logger')
-reddit = praw.Reddit(**config.logger)
 loiter = config.loiter
-max_restarts = config.max_restarts
-source = config.src
 logging.basicConfig(filename=config.log_file,
                     filemode=config.mode,
                     level=config.level,
                     format='%(asctime)s %(levelname)s %(name)s %(message)s')
 logger.disabled = config.disabled
+try:
+    reddit = praw.Reddit(**config.logger)
+except prawcore.exceptions.OAuthException as e:
+    logger.exception(e)
+    logger.critical('Authentication failed.')
+    sys.exit()
 conn = sqlite3.connect(config.db_file)
 c = conn.cursor()
+max_restarts = config.max_restarts
+source = config.src
 
 
 def build_db():
@@ -31,99 +36,95 @@ def build_db():
     conn.commit()
 
 
-def submission_exists(submission):
-    """Query the existence of a submission"""
-    c.execute('''SELECT id FROM submissions WHERE id=(?) LIMIT 1''', (submission.id,))
+def object_exists(_object, submission=True):
+    """Query the existence of a submission or comment. Default to look for a submission."""
+    if submission:
+        c.execute('''SELECT id FROM submissions WHERE id=(?) LIMIT 1''', (_object.id,))
+    else:
+        c.execute('''SELECT id FROM comments WHERE id=(?) LIMIT 1''', (_object.id,))
     if c.fetchone():
         return True
     return False
 
 
-def comment_exists(comment):
-    """Query the existence of a comment"""
-    c.execute('''SELECT id FROM comments WHERE id=(?) LIMIT 1''', (comment.id,))
-    if c.fetchone():
-        return True
-    return False
+def build_entry(obj, _type):
+    """Insert object data into the database.
+    Ignore edited objects.
+    Ignore existing id's
+    Determine if selfpost or a link.
+    Try to insert into db 5 times in case it is locked."""
+    if obj.edited:
+        return None
+    _id = obj.id
+    _auth = obj.author.name
+    if _type == 0 and not object_exists(obj):
+        _self = True if obj.is_self == 1 else False
+        _title = obj.title
+        _link = obj.url if not _self else None
+        _text = obj.selftext if obj.selftext else None
+        sql = '''INSERT INTO submissions(posted, id, repost_id, self, auth, title, text, link)
+        VALUES (?,?,?,?,?,?,?,?)'''
+        data_tuple = (False, _id, None, _self, _auth, _title, _text, _link)
+        return sql, data_tuple
+    elif _type == 1 and not object_exists(obj, submission=False):
+        _is_root = obj.is_root
+        _text = obj.body
+        _parent_id = obj.parent().id
+        _sub_id = obj.submission.id
+        sql = '''INSERT INTO comments (posted, id, repost_id, is_root, auth, text, parent_id, sub_id)
+        VALUES (?,?,?,?,?,?,?,?)'''
+        data_tuple = (False, _id, None, _is_root, _auth, _text, _parent_id, _sub_id)
+        return sql, data_tuple
+    else:
+        return None
 
 
-def store_submission(submission):
-    """Insert submission info into the database"""
-    _id = submission.id
-    _self = True if submission.is_self == 1 else False
-    _auth = submission.author.name
-    _title = submission.title
-    _link = submission.url if not _self else None
-    _text = submission.selftext if submission.selftext else None
+def store_entry(sql, data):
     tries = 0
     while tries < 5:
         try:
-            c.execute('''
-            INSERT INTO submissions(posted, id, repost_id, self, auth, title, text, link)
-            VALUES (?,?,?,?,?,?,?,?)''', (False, _id, None, _self, _auth, _title, _text, _link))
+            c.execute(sql, data)
             conn.commit()
         except sqlite3.OperationalError as error:
             logger.exception(error)
+            tries += 1
             sleep(2)
             continue
         else:
             break
     else:
-        logger.log(50, 'DATABASE ERROR. UPDATE FAILED')
+        logger.error('Database Error. Update Failed.')
 
 
-def store_comment(comment):
-    """Insert comment data into the database"""
-    if comment.edited:
-        return
-    _id = comment.id
-    _is_root = comment.is_root
-    _auth = comment.author.name
-    _text = comment.body
-    _parent_id = comment.parent().id
-    _sub_id = comment.submission.id
-    tries = 0
-    while tries < 5:
+def fill_queue(monitored_sub, queue, obj_type):
+    """Stream all submissions or comments and put them into the queue.
+    Submissions are stored in a tuple with a 0, comments with a 1."""
+    restarts = 0
+    while restarts < max_restarts:
         try:
-            c.execute('''
-            INSERT INTO comments (posted, id, repost_id, is_root, auth, text, parent_id, sub_id)
-            VALUES (?,?,?,?,?,?,?,?)''', (False, _id, None, _is_root, _auth, _text, _parent_id, _sub_id))
-            conn.commit()
-        except sqlite3.OperationalError as error:
+            subreddit = reddit.subreddit(monitored_sub)
+            if obj_type == 'Submission':
+                for sub in subreddit.stream.submissions():
+                    queue.append((sub, 0))
+            else:
+                for com in subreddit.stream.comments():
+                    queue.append((com, 1))
+        except prawcore.exceptions.RequestException as error:
             logger.exception(error)
-            sleep(2)
+            restarts += 1
+            sleep(loiter)
             continue
-        else:
-            break
+        except prawcore.exceptions.ResponseException as error:
+            logger.exception(error)
+            restarts += 1
+            sleep(loiter)
+            continue
+        except Exception as error:
+            logger.exception(error)
+            logger.critical('{} stream thread has terminated. Shutting down.'.format(obj_type))
+            sys.exit()
     else:
-        logger.log(50, 'DATABASE ERROR. UPDATE FAILED')
-
-
-def _feed_subs_to_queue(monitored_sub, queue):
-    """Stream all submissions and put them into the queue.
-    Submissions are stored in a tuple with a 0."""
-
-    subreddit = reddit.subreddit(monitored_sub)
-    try:
-        for sub in subreddit.stream.submissions():
-            queue.append((sub, 0))
-    except Exception as error:
-        logger.exception(error)
-        logger.critical('Submission stream thread has terminated. Shutting down.')
-        sys.exit()
-
-
-def _feed_comms_to_queue(monitored_sub, queue):
-    """Stream all comments and put them into the queue.
-    Comments are stored in a tuple with a 1."""
-
-    subreddit = reddit.subreddit(monitored_sub)
-    try:
-        for com in subreddit.stream.comments():
-            queue.append((com, 1))
-    except Exception as error:
-        logger.exception(error)
-        logger.critical('Comment stream thread has terminated. Shutting down.')
+        logger.critical('{} stream max restarts exceeded. Shutting down.'.format(obj_type))
         sys.exit()
 
 
@@ -131,63 +132,28 @@ def sub_com_stream(queue):
     """Stream the comments and submissions from the queue"""
     while True:
         try:
-            entry = queue.pop()
+            yield queue.pop()
         except IndexError:
             continue
-        else:
-            yield entry
 
 
 def run():
     """Create a queue to use as a funnel, start the threads and dispatch as needed"""
+    logger.info('Start')
+    build_db()
     q = deque()
-    s_thread = threading.Thread(target=_feed_subs_to_queue, args=(source, q), daemon=True)
-    c_thread = threading.Thread(target=_feed_comms_to_queue, args=(source, q), daemon=True)
+    s_thread = threading.Thread(target=fill_queue, args=(source, q, 'Submission'), daemon=True)
+    c_thread = threading.Thread(target=fill_queue, args=(source, q, 'Comment'), daemon=True)
     s_thread.start()
     c_thread.start()
     for entry in sub_com_stream(q):
-        if entry[1] == 0 and not submission_exists(entry[0]):
-            store_submission(entry[0])
-        elif entry[1] == 1 and not comment_exists(entry[0]):
-            store_comment(entry[0])
-        else:
-            continue
+        _objec, _type = entry
+        values = build_entry(_objec, _type)
+        if values:
+            sql, data = values
+            store_entry(sql, data)
 
-
-def main():
-    """Create a log entry, build the database tables and start the streaming threads."""
-    logger.info('Start')
-    build_db()
-    restarts = 0
-    while restarts < max_restarts:
-        try:
-            run()
-        except prawcore.exceptions.OAuthException as e:
-            logger.exception(e)
-            logger.critical('Authentication failed. Shutting down.')
-            break
-        except prawcore.exceptions.RequestException as e:
-            logger.exception(e)
-            restarts += 1
-            sleep(loiter)
-            continue
-        except prawcore.exceptions.ResponseException as e:
-            logger.exception(e)
-            restarts += 1
-            sleep(loiter)
-            continue
-        except Exception as e:
-            logger.exception(e)
-            restarts += 1
-            sleep(loiter)
-            continue
-    else:
-        logger.error('Max restarts exceeded')
-    logger.info('Stop')
-    if config.admin_user:
-        reddit.redditor(config.admin_user).message('YOUR BOT HAS STOPPED',
-                                                   'Your Poster bot has malfunctioned.\n'
-                                                   'Please review the activity log for errors.')
 
 if __name__ == '__main__':
-    main()
+    run()
+    logger.info('Stop')
