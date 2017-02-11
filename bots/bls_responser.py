@@ -1,4 +1,3 @@
-from time import sleep
 import praw
 
 reddit = praw.Reddit(
@@ -17,13 +16,10 @@ ___
 
 
 def main():
-    while True:
-        for mention in reddit.inbox.mentions():
-            if mention.new:
-                mention.reply(response)
-                mention.mark_read()
-        sleep(10)
-
+    for mention in reddit.inbox.mentions():
+        if mention.new:
+            mention.reply(response)
+            mention.mark_read()
 
 if __name__ == '__main__':
     main()
