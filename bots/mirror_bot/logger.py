@@ -99,32 +99,16 @@ def store_entry(sql, data):
 def fill_queue(monitored_sub, queue, obj_type):
     """Stream all submissions or comments and put them into the queue.
     Submissions are stored in a tuple with a 0, comments with a 1."""
-    restarts = 0
-    while restarts < max_restarts:
-        try:
-            subreddit = reddit.subreddit(monitored_sub)
-            if obj_type == 'Submission':
-                for sub in subreddit.stream.submissions():
-                    queue.append((sub, 0))
-            else:
-                for com in subreddit.stream.comments():
-                    queue.append((com, 1))
-        except prawcore.exceptions.RequestException as error:
-            logger.exception(error)
-            restarts += 1
-            sleep(loiter)
-            continue
-        except prawcore.exceptions.ResponseException as error:
-            logger.exception(error)
-            restarts += 1
-            sleep(loiter)
-            continue
-        except Exception as error:
-            logger.exception(error)
-            logger.critical('{} stream thread has terminated. Shutting down.'.format(obj_type))
-            sys.exit()
-    else:
-        logger.critical('{} stream max restarts exceeded. Shutting down.'.format(obj_type))
+    try:
+        subreddit = reddit.subreddit(monitored_sub)
+        if obj_type == 'Submission':
+            for sub in subreddit.stream.submissions():
+                queue.append((sub, 0))
+        else:
+            for com in subreddit.stream.comments():
+                queue.append((com, 1))
+    except Exception as error:
+        logger.exception(error)
         sys.exit()
 
 
@@ -139,7 +123,6 @@ def sub_com_stream(queue):
 
 def run():
     """Create a queue to use as a funnel, start the threads and dispatch as needed"""
-    logger.info('Start')
     build_db()
     q = deque()
     s_thread = threading.Thread(target=fill_queue, args=(source, q, 'Submission'), daemon=True)
@@ -147,13 +130,13 @@ def run():
     s_thread.start()
     c_thread.start()
     for entry in sub_com_stream(q):
-        _objec, _type = entry
-        values = build_entry(_objec, _type)
+        item, kind = entry
+        values = build_entry(item, kind)
         if values:
             sql, data = values
             store_entry(sql, data)
 
 
 if __name__ == '__main__':
+    logger.info('Start')
     run()
-    logger.info('Stop')
