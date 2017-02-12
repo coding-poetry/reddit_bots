@@ -23,9 +23,8 @@ def main():
     Past comments will be ignored"""
     
     for comment in reddit.redditor('spez').comments.new(limit=None):
-        if comment.created_utc < start:
-            continue
-        handle(comment)
+        if not comment.created_utc < start:
+            handle(comment)
 
 
 if __name__ == '__main__':
