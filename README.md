@@ -22,6 +22,8 @@
 
 ---
 ## Bots
+- [**Mirror Bot**](https://github.com/harrelchris/mirror_bot)
+  - Creates a mirror of a subreddit
 - **BLS Responder**
   - Provides a link to BLS data when mentioned
 - **Discussion Monitor**
