@@ -6,7 +6,6 @@
 
 [![Python](https://img.shields.io/badge/Python-3+-blue.svg?style=plastic)](https://www.python.org/downloads/)
 [![Praw](https://img.shields.io/badge/Praw-4-blue.svg?style=plastic)](https://github.com/praw-dev/praw)
-[![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg?style=plastic)](https://www.paypal.me/chrisharrel)
 
 ---
 
