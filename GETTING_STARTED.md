@@ -15,6 +15,7 @@
   - Your bot should be saved in a directory/folder by itself
   - Use the same names for the files as you find them here
   - Python files should be given `.py` as the file extension
+  - Your bot will likely need a `.ini` file which contains your authorization credentials (Step 4)
   
 ### 4 - Authorize the bot
   - Sign in to [reddit](http://www.reddit.com) with the account you will use the bot with
@@ -31,11 +32,10 @@
 ### 5 - Update bot credentials
   - Insert the username and password for the bot account.
   - Enter the client_id and client_secret which you were given when creating your bot app. You can access those values [here](https://www.reddit.com/prefs/apps/)
-  - Create a user_agent string following this format: Operating_System:App_Name:Version (by /u/Your_Username)
-  - Here is an example user_agent string
-    ```
-    Linux:Yes_Bot:0.1 (by /u/spez)
-    ```
+  - Create a user_agent string following this format: 
+    `Operating_System:Bot_Name:Version (by /u/Your_Username)`
+  - Here is an example user_agent string:
+    `Linux:Yes_Bot:0.1 (by /u/spez)`
     
 ### 6 - Schedule the bot
   - Linux and Mac use [Crontab](http://www.linuxweblog.com/crotab-tutorial)
