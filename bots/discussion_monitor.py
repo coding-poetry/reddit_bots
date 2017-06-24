@@ -3,13 +3,7 @@ import praw
 
 selected_sub = 'all'
 start = time()
-reddit = praw.Reddit(
-    client_id='client_id',
-    client_secret='client_secret',
-    password='password',
-    user_agent='user_agent',
-    username='username'
-)
+reddit = praw.Reddit('AUTHENTICATION')
 
 
 def handle(comment):
@@ -20,12 +14,10 @@ def handle(comment):
 
 
 def main():
-    subreddit = reddit.subreddit(selected_sub)
-    comment_stream = subreddit.stream.comments()
+    comment_stream = reddit.subreddit(sub).stream.comments()
     for comment in comment_stream:
-        if comment.created_utc < start:
-            continue
-        handle(comment)
+        if comment.created_utc > start:
+            handle(comment)
 
 if __name__ == '__main__':
     main()
