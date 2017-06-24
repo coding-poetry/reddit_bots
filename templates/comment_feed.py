@@ -7,7 +7,7 @@ reddit = praw.Reddit('AUTHENTICATION')
 
 
 def handle(comment):
-    pass
+    print(comment.author.name)
 
 
 def main():
