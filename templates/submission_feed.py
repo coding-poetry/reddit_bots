@@ -13,9 +13,8 @@ def handle(submission):
 def main():
     submission_stream = reddit.subreddit(sub).stream.submissions()
     for submission in submission_stream:
-        if submission.created_utc < start:
-            continue
-        handle(submission)
+        if submission.created_utc > start:
+            handle(submission)
 
 if __name__ == '__main__':
     main()
