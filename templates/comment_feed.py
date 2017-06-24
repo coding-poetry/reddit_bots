@@ -13,9 +13,8 @@ def handle(comment):
 def main():
     comment_stream = reddit.subreddit(sub).stream.comments()
     for comment in comment_stream:
-        if comment.created_utc < start:
-            continue
-        handle(comment)
+        if comment.created_utc > start:
+            handle(comment)
 
 if __name__ == '__main__':
     main()
