@@ -1,8 +1,3 @@
-"""
-if new post in subreddit:
-    message user with permalink
-"""
-
 from time import time
 import praw
 
