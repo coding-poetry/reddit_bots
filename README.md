@@ -9,10 +9,10 @@
 
 
 ## Templates
-- [Comment Feed](https://github.com/harrelchris/reddit_bots/blob/master/templates/comment_feed.py)
-- [Submission Feed](https://github.com/harrelchris/reddit_bots/blob/master/templates/submission_feed.py)
-- [Submission and Comment Feed](https://github.com/harrelchris/reddit_bots/blob/master/templates/submission_comment_feed.py)
-- [Mention Responder](https://github.com/harrelchris/reddit_bots/blob/master/templates/mention_responder.py)
-- Inbox
-- [User Feed](https://github.com/harrelchris/reddit_bots/blob/master/templates/user_feed.py)
-- Historic Data
+- [Comment Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/comment_feed.py)
+- [Submission Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/submission_feed.py)
+- [Submission and Comment Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/RedditStream/submission_comment_feed.py)
+
+- [Mention Responder](https://github.com/kimpeek/reddit_bots/blob/master/templates/mention_responder.py)
+- [User Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/user_feed.py)
+- [Keyword Notification](https://github.com/kimpeek/reddit_bots/blob/master/templates/keyword_notification.py)
