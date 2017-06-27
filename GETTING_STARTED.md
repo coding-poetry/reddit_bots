@@ -29,13 +29,14 @@
   - Go to the [Reddit API Access page](https://www.reddit.com/wiki/api) and click "Read the full API terms and sign up for usage."
   - Fill all required fields on the form and click submit
   
-### 5 - Update bot credentials
-  - Insert the username and password for the bot account.
+### 5 - Insert bot credentials
+  - Create a file called `praw.ini` in the same directory as your bot
   - Enter the client_id and client_secret which you were given when creating your bot app. You can access those values [here](https://www.reddit.com/prefs/apps/)
   - Create a user_agent string following this format: 
     `Operating_System:Bot_Name:Version (by /u/Your_Username)`
   - Here is an example user_agent string:
     `Linux:Yes_Bot:0.1 (by /u/spez)`
+  - [Here](https://github.com/kimpeek/reddit_bots/blob/master/templates/praw.ini) is an example `praw.ini` file
     
 ### 6 - Schedule the bot
   - Linux and Mac use [Crontab](http://www.linuxweblog.com/crotab-tutorial)
