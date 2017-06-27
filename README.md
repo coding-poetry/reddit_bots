@@ -14,6 +14,7 @@
 - [Submission Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/submission_feed.py)
 - [Submission and Comment Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/RedditStream/submission_comment_feed.py)
 - [Mention Responder](https://github.com/kimpeek/reddit_bots/blob/master/templates/mention_responder.py)
+- [Comment Replies](https://github.com/kimpeek/reddit_bots/blob/master/templates/comment_reply.py)
 - [User Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/user_feed.py)
 - [Keyword Notification](https://github.com/kimpeek/reddit_bots/blob/master/templates/keyword_notification.py)
 - [New Submission Notification](https://github.com/kimpeek/reddit_bots/blob/master/templates/subscription_notifier.py)
