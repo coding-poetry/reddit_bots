@@ -1,9 +1,9 @@
 import praw
 
 reddit = praw.Reddit('AUTHENTICATION')
-COMMENT_ID = 'dja78ia'
 
-comment = reddit.comment(COMMENT_ID)
+comment = reddit.comment('dja78ia')
+
 comment.approved
 comment.approved_by
 comment.archived
