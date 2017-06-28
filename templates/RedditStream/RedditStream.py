@@ -3,7 +3,7 @@ from collections import deque
 
 
 class Stream:
-    """An iterator that yielda submissions and comments"""
+    """An iterator that yields submissions and comments"""
 
     def __init__(self, reddit, subreddit):
         self._reddit = reddit
