@@ -1,9 +1,9 @@
 import praw
 
 reddit = praw.Reddit('AUTHENTICATION')
-MESSAGE_ID = 'abc123'
 
-message = inbox.message(MESSAGE_ID)
+message = inbox.message('abc123')
+
 message.author
 message.block
 message.body
