@@ -1,9 +1,12 @@
 import praw
 
 reddit = praw.Reddit('AUTHENTICATION')
-USERNAME = 'abc123'
 
-redditor = reddit.redditor(USERNAME)
+redditor = reddit.redditor('spez')
+redditor = comment.author
+redditor = message.author
+redditor = submission.author
+
 redditor.comment_karma
 redditor.comments()
 redditor.comments.controversial(time_filter='all')  # 'all', 'day', 'hour', 'month', 'week', 'year'
