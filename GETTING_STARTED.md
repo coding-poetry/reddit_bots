@@ -34,10 +34,13 @@
   - Enter the client_id and client_secret which you were given when creating your bot app. You can access those values [here](https://www.reddit.com/prefs/apps/)
   - Create a user_agent string following this format: 
     `<platform>:<app ID>:<version string> (by /u/<reddit username>)`
-  - Here is an example user_agent string:
-    `Linux:Yes_Bot:0.1 (by /u/spez)`
-    `android:com.example.myredditapp:v1.2.3 (by /u/kemitche)`
-    `script:Automoderator:4.5 (by /u/deimorz)`
+  - Here are example user_agent strings:
+    ```
+    Linux:Yes_Bot:0.1 (by /u/spez)
+    android:com.example.myredditapp:v1.2.3 (by /u/kemitche)    
+    script:Automoderator:4.5 (by /u/deimorz)
+    ```
+    
   - [Here](https://github.com/kimpeek/reddit_bots/blob/master/templates/praw.ini) is an example `praw.ini` file
     
 ### 6 - Schedule the bot
