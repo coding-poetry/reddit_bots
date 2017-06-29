@@ -1,12 +1,9 @@
-import praw
-
-reddit = praw.Reddit('AUTHENTICATION')
-SUBREDDIT_NAME = 'abc123'
-
+# CREATE A NEW SUBREDDIT
 reddit.subreddit.create(name, title=None, link_type='any', subreddit_type='public', wikimode='disabled')
-reddit.subreddit('all').hot(limit=25)  # Treated differently than a subreddit
 
-subreddit = reddit.subreddit(SUBREDDIT_NAME)
+# Treated differently than a subreddit
+reddit.subreddit('all').hot(limit=25)
+
 subreddit.banned()
 subreddit.banned.add(redditor)
 subreddit.banned.relationship()
