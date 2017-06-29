@@ -1,9 +1,3 @@
-import praw
-
-reddit = praw.Reddit('AUTHENTICATION')
-
-comment = reddit.comment('dja78ia')
-
 comment.approved
 comment.approved_by
 comment.archived
