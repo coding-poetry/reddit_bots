@@ -10,7 +10,23 @@ redditor = reddit.redditor(username)
 ### Attributes
 
 ```python
+redditor.comment_karma
+redditor.created
+redditor.created_utc
 redditor.fullname
+redditor.has_subscribed
+redditor.has_verified_email
+redditor.hide_from_robots
+redditor.id
+redditor.is_employee
+redditor.is_friend
+redditor.is_gold
+redditor.is_mod
+redditor.link_karma
+redditor.name
+redditor.pref_show_snoovatar
+redditor.upvoted
+redditor.verified
 ```
 
 ### Functions
