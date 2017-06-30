@@ -13,13 +13,13 @@ def main():
 
 
 def handle(submission):
-    title = submission.title
-    url = submission.url if not submission.is_self else None
-    selftext = submission.selftext if submission.is_self else None
-    created_utc = submission.created_utc
-    permalink = submission.permalink
-    shortlink = submission.shortlink
     _id = submission.id
+    url = submission.url if not submission.is_self else None
+    title = submission.title
+    selftext = submission.selftext if submission.is_self else None
+    permalink = 'http://www.reddit.com{}'.format(submission.permalink)
+    shortlink = submission.shortlink
+    created_utc = submission.created_utc
 
     author = submission.author
     verified = submission.author.verified
