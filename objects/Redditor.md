@@ -39,7 +39,25 @@ redditor.upvoted()
 ```
 
 ### Classes
+
+#### Comments
+
 ```python
 redditor.comments
+redditor.comments.controversial(time_filter='all')  # all, day, hour, month, week, year
+redditor.comments.hot()
+redditor.comments.new()
+redditor.comments.parse(data, reddit)
+redditor.comments.top(time_filter='all')  # all, day, hour, month, week, year
+```
+
+#### Submissions
+
+```python
 redditor.submissions
+redditor.submissions.controversial(time_filter='all')  # all, day, hour, month, week, year
+redditor.submissions.hot()
+redditor.submissions.new()
+redditor.submissions.parse(data, reddit)
+redditor.submissions.top(time_filter='all')  # all, day, hour, month, week, year
 ```
