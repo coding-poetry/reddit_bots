@@ -19,7 +19,7 @@ def main():
                 handle_comment(comment)
 
 
-def handle(submission):
+def handle_submission(submission):
     _id = submission.id
     url = submission.url if not submission.is_self else None
     title = submission.title
@@ -46,7 +46,7 @@ def handle(submission):
     submission.mod.sticky(state=True, bottom=True)
 
 
-def handle(comment):
+def handle_comment(comment):
     _id = comment.id
     body = comment.body
     is_root = comment.is_root
