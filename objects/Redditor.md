@@ -30,7 +30,7 @@ redditor.message(subject, message, from_subreddit=None)
 redditor.multireddits()
 redditor.name()
 redditor.new()
-redditor.parse()
+redditor.parse(data, reddit)
 redditor.saved()
 redditor.top(time_filter='all')  # all, day, hour, month, week, year
 redditor.unblock()
