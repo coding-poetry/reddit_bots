@@ -25,9 +25,9 @@ inbox.unread(mark_read=False)
 ```
 ---
 
-### `message()` and `messages()` return a [Message](https://github.com/kimpeek/reddit_bots/blob/master/objects/Message.md) object.
+##### `message()` and `messages()` return a [Message](https://github.com/kimpeek/reddit_bots/blob/master/objects/Message.md) object.
 
-### `comment_replies()`, `mentions()` and `submission_replies()` return a [Comment](https://github.com/kimpeek/reddit_bots/blob/master/objects/Comment.md) object with the additional attributes:
+##### `comment_replies()`, `mentions()` and `submission_replies()` return a [Comment](https://github.com/kimpeek/reddit_bots/blob/master/objects/Comment.md) object with the additional attributes:
 
 #### New Attributes
 
