@@ -96,9 +96,7 @@ submission.upvote()
 
 ### Classes
 
-#### Author
-
-[Redditor Class](https://github.com/kimpeek/reddit_bots/blob/master/objects/Redditor.md)
+#### [Author](https://github.com/kimpeek/reddit_bots/blob/master/objects/Redditor.md)
 
 #### Comments
 
@@ -135,6 +133,4 @@ submission.mod.unlock()
 submission.mod.unspoiler()
 ```
 
-#### Subreddit
-
-[Subreddit Class]()
+#### [Subreddit]()
