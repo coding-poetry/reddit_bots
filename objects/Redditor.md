@@ -25,6 +25,7 @@ redditor.is_mod
 redditor.link_karma
 redditor.name
 redditor.pref_show_snoovatar
+redditor.subreddit  # Only a dict now. May be treated as a subreddit in the future
 redditor.upvoted
 redditor.verified
 ```
