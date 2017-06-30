@@ -10,9 +10,9 @@
 ---
 
 ## Templates
-- [Comment Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/comment_feed.py)
-- [Submission Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/submission_feed.py)
-- [Submission and Comment Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/RedditStream/submission_comment_feed.py)
+- [Comment Stream](https://github.com/kimpeek/reddit_bots/blob/master/templates/comment_stream.py)
+- [Submission Stream](https://github.com/kimpeek/reddit_bots/blob/master/templates/submission_stream.py)
+- [Submission and Comment Stream](https://github.com/kimpeek/reddit_bots/blob/master/templates/RedditStream/submission_comment_stream.py)
 - [Mention Responder](https://github.com/kimpeek/reddit_bots/blob/master/templates/mention_responder.py)
 - [Comment Replies](https://github.com/kimpeek/reddit_bots/blob/master/templates/comment_reply.py)
 - [User Feed](https://github.com/kimpeek/reddit_bots/blob/master/templates/user_feed.py)
