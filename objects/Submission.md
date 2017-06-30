@@ -133,4 +133,4 @@ submission.mod.unlock()
 submission.mod.unspoiler()
 ```
 
-#### [Subreddit]()
+#### [Subreddit](https://github.com/kimpeek/reddit_bots/blob/master/objects/Subreddit.md)
