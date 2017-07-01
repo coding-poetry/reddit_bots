@@ -17,6 +17,5 @@ user.karma()
 user.me(use_cache=True)
 user.moderator_subreddits()
 user.multireddits()
-user.parse(data, reddit)
 user.subreddits()
 ```
