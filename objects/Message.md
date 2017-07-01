@@ -38,7 +38,6 @@ message.was_comment
 message.block()
 message.mark_read()
 message.mark_unread()
-message.parse(data, reddit)
 message.reply(body)
 ```
 
