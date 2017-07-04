@@ -10,8 +10,58 @@ subreddit = reddit.subreddit(subreddit_name)
 ### Attributes
 
 ```python
+subreddit.accounts_active
+subreddit.accounts_active_is_fuzzed
+subreddit.active_user_count
+subreddit.advertiser_category
+subreddit.allow_images
+subreddit.banner_img
+subreddit.banner_size
+subreddit.collapse_deleted_comments
+subreddit.comment_score_hide_mins
+subreddit.created
+subreddit.created_utc
+subreddit.description
+subreddit.description_html
 subreddit.display_name
+subreddit.display_name_prefixed
 subreddit.fullname
+subreddit.header_img
+subreddit.header_size
+subreddit.header_title
+subreddit.hide_ads
+subreddit.icon_img
+subreddit.icon_size
+subreddit.id
+subreddit.key_color
+subreddit.lang
+subreddit.name
+subreddit.over18
+subreddit.public_description
+subreddit.public_description_html
+subreddit.public_traffic
+subreddit.quarantine
+subreddit.show_media
+subreddit.show_media_preview
+subreddit.spoilers_enabled
+subreddit.submission_type
+subreddit.submit_link_label
+subreddit.submit_text
+subreddit.submit_text_html
+subreddit.submit_text_label
+subreddit.subreddit_type
+subreddit.subscribers
+subreddit.suggested_comment_sort
+subreddit.title
+subreddit.url
+subreddit.user_is_banned
+subreddit.user_is_contributor
+subreddit.user_is_moderator
+subreddit.user_is_muted
+subreddit.user_is_subscriber
+subreddit.user_sr_theme_enabled
+subreddit.whitelist_status
+subreddit.wiki_enabled
 ```
 
 ### Functions
@@ -177,4 +227,3 @@ subreddit.wiki.contributor.remove()
 subreddit.wiki.create(name, content, reason=None, **other_settings)
 subreddit.wiki.revisions()
 ```
-
