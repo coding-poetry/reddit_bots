@@ -3,14 +3,13 @@
 ---
 ### 1 - Install Python 3
   - [Python 3.5](https://www.python.org/downloads/) or higher is recommended
+  - If you do not have `pip` for Python 3, you can install it with `sudo apt-get install python3-pip`
   
 ### 2 - Install PRAW
   - Detailed installation instructions found [here](https://praw.readthedocs.io/en/latest/getting_started/installation.html)
-  - Or simply execute this command in a terminal
-    ```
-    pip install praw
-    ```
-    
+  - Or simply execute this command in a terminal  
+    `pip3 install praw`
+
 ### 3 - Save the code
   - Your bot should be saved in a directory/folder by itself
   - Use the same names for the files as you find them here
