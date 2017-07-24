@@ -4,19 +4,15 @@ from RedditStream import Stream
 
 reddit = praw.Reddit('AUTHENTICATION')
 subreddit = 'all'
-stream = Stream(reddit, subreddit)
 
 
 def main():
-    start = time()
-    for item in stream:
+    for item in Stream(reddit, subreddit).dual_stream():
         submission, comment = item
         if submission:
-            if submission.created_utc > start:
-                handle_submission(submission)
+            handle_submission(submission)
         else:
-            if comment.created_utc > start:
-                handle_comment(comment)
+            handle_comment(comment)
 
 
 def handle_submission(submission):
